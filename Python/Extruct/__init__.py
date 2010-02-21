@@ -1013,3 +1013,22 @@ def WrapMethod(XML):
   return Extruct_MethodDecorator
 
 
+
+def Wrap(XML):
+  def Extruct_Decorator(fun):
+    specs = Parse('<Extruct>'+XML+'</Extruct>')
+    if len(specs) != fun.__code__.co_argcount + 1:
+      raise ValueError("Extruct definition for {0}.{1} must contain exactly {2} top level data definitions ({3} args + 1 return)".format(fun.__module__, fun.__name__, fun.__code__.co_argcount+1, fun.__code__.co_argcount))
+
+    for spec in specs:
+      spec.Name = "{0}.{1}.{2}".format(fun.__module__, fun.__name__, spec.Name)
+
+    def wrapper(*args):
+      return specs[-1].Convert(fun(*(spec.Convert(arg) for spec,arg in zip(specs[:-1],args))))
+    
+    wrapper.__name__ = "Extruct.Wrap around {0}.{1}".format(fun.__module__, fun.__name__)
+    return wrapper
+
+  return Extruct_Decorator
+
+
