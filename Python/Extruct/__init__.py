@@ -48,8 +48,8 @@ REGEX_NODE_NAME = REGEX_SPEC_NAME
 class aadict(dict):
   __slots__ = ()
   __getattr__ = dict.__getitem__
-  __setattr__ = dict.__setattr__
-  __delattr__ = dict.__delattr__
+  __setattr__ = dict.__setitem__
+  __delattr__ = dict.__delitem__
 
 ###################################################################################################
 class ParseError(Exception):
