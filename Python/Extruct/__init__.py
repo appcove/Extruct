@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+try:
+  # Appstruct is currently required to handle <DateTime> type
+  from AppStruct.Date import ISOToDate, ISOToDateTime, UTC
+except ImportError:
+  pass
 
 # Import types
 NoneType = type(None)
@@ -27,6 +32,8 @@ TupleType = tuple
 DictType = dict
 from decimal import Decimal as DecimalType
 from collections import OrderedDict
+from datetime import datetime as DateTimeType
+from datetime import date as DateType
 
 # Other code needed
 from base64 import b64encode, b64decode
@@ -262,6 +269,14 @@ class DecimalNode(ScalarNode):
   Type = 'Decimal'
 
 ###################################################################################################
+class DateTimeNode(ScalarNode):
+  Type = 'DateTime'
+
+###################################################################################################
+class DateNode(ScalarNode):
+  Type = 'Date'
+
+###################################################################################################
 class StringNode(ScalarNode):
   Type = 'String'
 
@@ -388,6 +403,8 @@ class Spec(object):
     'Int'     : IntNode,
     'Float'   : FloatNode,
     'Decimal' : DecimalNode,
+    'Date'    : DateNode,
+    'DateTime': DateTimeNode,
     'String'  : StringNode,
     'Bytes'   : BytesNode,
     'List'    : ListNode,
@@ -578,6 +595,34 @@ class NativeToNative_Convertor(object):
         return Decimal(str(DATA))
       else:
         return Decimal(DATA)
+    except Exception as e:
+      raise _ConversionError(oNode, DATA, e.args[0])
+
+  #==============================================================================================
+  def _Date(self, oNode, DATA):
+    try:
+      if isinstance(DATA, DateType):
+        return DATA      
+      elif isinstance(DATA, DateTimeType):
+        return DateType(DATA.year, DATA.month, DATA.day)
+      elif isinstance(DATA, str):
+        return ISOToDate(DATA)
+      else:
+        raise TypeError('Cannot covert type ' + str(type(DATA)) + ' to DateType.')
+    except Exception as e:
+      raise _ConversionError(oNode, DATA, e.args[0])
+  
+  #==============================================================================================
+  def _DateTime(self, oNode, DATA):
+    try:
+      if isinstance(DATA, DateTimeType):
+        return DATA
+      elif isinstance(DATA, DateType):
+        return DateTimeType(DATA.year, DATA.month, DATA.day, 0, 0, 0, tzinfo=UTC)
+      elif isinstance(DATA, str):
+        return ISOToDateTime(DATA)
+      else:
+        raise TypeError('Cannot covert type ' + str(type(DATA)) + ' to DateTimeType.')
     except Exception as e:
       raise _ConversionError(oNode, DATA, e.args[0])
 
