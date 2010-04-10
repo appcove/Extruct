@@ -601,7 +601,7 @@ class NativeToNative_Convertor(object):
   #==============================================================================================
   def _Date(self, oNode, DATA):
     try:
-      if isinstance(DATA, DateType):
+      if type(DATA) == DateType:
         return DATA      
       elif isinstance(DATA, DateTimeType):
         return DateType(DATA.year, DATA.month, DATA.day)
@@ -615,7 +615,7 @@ class NativeToNative_Convertor(object):
   #==============================================================================================
   def _DateTime(self, oNode, DATA):
     try:
-      if isinstance(DATA, DateTimeType):
+      if type(DATA) == DateTimeType:
         return DATA
       elif isinstance(DATA, DateType):
         return DateTimeType(DATA.year, DATA.month, DATA.day, 0, 0, 0, tzinfo=UTC)
